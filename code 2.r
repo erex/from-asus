@@ -2,4 +2,6 @@
 # just as uninteresting as the first
 
 z <- lm(runif(100) ~ runif(100))
-print(summary(z))
+summary(z)
+
+#  I don't this the previous statement was correct.
