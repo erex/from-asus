@@ -13,3 +13,6 @@ summary(lm(y~x))
 ## ToDo:  
 ##	be sure to add some error trapping to this code.
 ##	remember to buy milk on the way home tonight.
+
+
+#  Now that I'm back, let me extend this comment for this particular file.access
