@@ -7,3 +7,9 @@ b1 <- .6
 x <- runif(100)*10
 y <- b0 + b1*x + (runif(100)-.5)
 summary(lm(y~x))
+
+
+# of course, now that this file has been committed, I need to make some changes
+## ToDo:  
+##	be sure to add some error trapping to this code.
+##	remember to buy milk on the way home tonight.
