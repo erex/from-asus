@@ -5,3 +5,6 @@
 max(runif(100))
 
 # this could be turned into a histogram as well
+
+#  might as well provide the histogram then
+hist(runif(100))
