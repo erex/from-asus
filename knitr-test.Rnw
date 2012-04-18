@@ -19,7 +19,7 @@ Not only can I see the result of my calculations within these code chunks, but I
 
 All very pleasant, but we can also insert figures.
 
-<<hist-chunk, fig.cap="This is a caption for my figure.",fig.width=4, fig.height=4>>=
+<<hist-chunk, fig.cap=paste("This is a caption for my figure with ", samplesize, " observations"),out.width='0.5\\textwidth'>>=
 hist(x)
 @
 
