@@ -1,0 +1,52 @@
+\documentclass [a4paper] {article}
+
+\title{Exercise 1 for MT5752}
+\author{Eric Rexstad}
+\maketitle
+\begin{document}
+\begin{enumerate}
+
+\item This question is about a matrix.
+\begin{enumerate}
+\item Make the matrix of sequential numbers
+<<1a>>=
+M <- (matrix(data=seq(1:12), nrow=4, ncol=3, byrow=TRUE))
+@
+
+\item Change $M_{2,3} to 30
+<<1b>>=
+M[2,3] <- 30
+M
+@
+
+\item Sum of everything
+<<1c>>=
+the.total <- (sum(M))
+@
+
+\item Sum of third row
+<<1d>>=
+(my.sum <- M[3,])
+(rowSums(x=M)[3])
+
+@
+
+\item Replace column 2 with square roots
+<<1e>>=
+M[,2] <- sqrt(M[,2])
+@
+
+\item Change 10 to 100 everywhere
+<<1f>>=
+M[M==10] <- 100
+@
+
+\item What does \tt{apply} do?
+<<1g>>=
+apply(M,1,sum)
+apply(M,2,sum)
+@
+It seems that apply will apply the function named as the final argument, and subjects either rows (1) or columns(2) to this treatment.  I suspect this would generalise such that if we had a 3 or 4 dimensional matrix, we could employ 3 or 4 as the second argument.
+\end{enumerate}
+\end{enumerate}
+\end{document}
