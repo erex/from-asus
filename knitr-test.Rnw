@@ -5,6 +5,7 @@
 %
 \documentclass[a4paper]{article}
 \begin{document}
+
 So I begin by writing a small amount of text.  I shall intersperse the text will the results of a bit of R code, such as this
 
 <<my-first-chunk, echo=TRUE>>=
@@ -12,15 +13,26 @@ samplesize <- 100
 x <- runif(samplesize)
 mymean <- mean(x)
 myvar <- var(x)
-
 @
 
 Not only can I see the result of my calculations within these code chunks, but I can also insert result of calculations into the narrative.  The mean of my \Sexpr{samplesize} observations is \Sexpr{mymean}, and the variance of the observations is \Sexpr{myvar}.
 
 All very pleasant, but we can also insert figures.
 
-<<hist-chunk, fig.cap="This is a caption for my figure.",fig.width=4, fig.height=4>>=
+<<hist-chunk, fig.cap="This is a caption for my figure.",fig.width=4, fig.height=4, fig.show='hold'>>=
 hist(x)
 @
+
+\begin{figure}
+<<double-plot, out.width='0.4\\linewidth', fig.show='hold'>>=
+plot(runif(100, 0, 100), runif(100, 10, 50), xlab="", ylab="")
+ranx <- runif(100, 0, 100)
+rany <- runif(100, 10, 50) 
+plot(ranx, rany, xlab="", ylab="")
+abline(lm(rany~ranx), lwd=2)
+@
+
+\caption{Hello everybody}
+\end{figure}
 
 \end{document}
