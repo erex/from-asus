@@ -390,6 +390,7 @@
 \newcommand{\Sexpr}[1]{}       % will only be parsed by R
 
 \begin{document}
+
 So I begin by writing a small amount of text.  I shall intersperse the text will the results of a bit of R code, such as this
 
 \begin{knitrout}
@@ -406,8 +407,41 @@ So I begin by writing a small amount of text.  I shall intersperse the text will
 \end{knitrout}
 
 
-Not only can I see the result of my calculations within these code chunks, but I can also insert result of calculations into the narrative.  The mean of my 100 observations is 0.4244, and the variance of the observations is 0.0777.
+Not only can I see the result of my calculations within these code chunks, but I can also insert result of calculations into the narrative.  The mean of my 100 observations is 0.571, and the variance of the observations is 0.0836.
 
 All very pleasant, but we can also insert figures.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{hist}\hlkeyword{(}\hlsymbol{x}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}\begin{figure}[]
+\includegraphics{hist-chunk} \caption[This is a caption for my figure]{This is a caption for my figure.\label{fig:hist-chunk}}
+\end{figure}
+
+\end{knitrout}
+
+
+\begin{figure}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{flushleft}
+\ttfamily\noindent
+\hlfunctioncall{plot}\hlkeyword{(}\hlfunctioncall{runif}\hlkeyword{(}\hlnumber{100}\hlkeyword{,}{\ }\hlnumber{0}\hlkeyword{,}{\ }\hlnumber{100}\hlkeyword{)}\hlkeyword{,}{\ }\hlfunctioncall{runif}\hlkeyword{(}\hlnumber{100}\hlkeyword{,}{\ }\hlnumber{10}\hlkeyword{,}{\ }\hlnumber{50}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{xlab}{\ }\hlargument{=}{\ }\hlstring{"{}"{}}\hlkeyword{,}{\ }\hlargument{ylab}{\ }\hlargument{=}{\ }\hlstring{"{}"{}}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{ranx}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{runif}\hlkeyword{(}\hlnumber{100}\hlkeyword{,}{\ }\hlnumber{0}\hlkeyword{,}{\ }\hlnumber{100}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlsymbol{rany}{\ }\hlassignement{\usebox{\hlnormalsizeboxlessthan}-}{\ }\hlfunctioncall{runif}\hlkeyword{(}\hlnumber{100}\hlkeyword{,}{\ }\hlnumber{10}\hlkeyword{,}{\ }\hlnumber{50}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{plot}\hlkeyword{(}\hlsymbol{ranx}\hlkeyword{,}{\ }\hlsymbol{rany}\hlkeyword{,}{\ }\hlargument{xlab}{\ }\hlargument{=}{\ }\hlstring{"{}"{}}\hlkeyword{,}{\ }\hlargument{ylab}{\ }\hlargument{=}{\ }\hlstring{"{}"{}}\hlkeyword{)}\hspace*{\fill}\\
+\hlstd{}\hlfunctioncall{abline}\hlkeyword{(}\hlfunctioncall{lm}\hlkeyword{(}\hlsymbol{rany}{\ }\hlkeyword{\urltilda{}}{\ }\hlsymbol{ranx}\hlkeyword{)}\hlkeyword{,}{\ }\hlargument{lwd}{\ }\hlargument{=}{\ }\hlnumber{2}\hlkeyword{)}\mbox{}
+\normalfont
+\end{flushleft}
+\end{kframe}\includegraphics[width=0.4\linewidth]{double-plot1} \includegraphics[width=0.4\linewidth]{double-plot2} 
+\end{knitrout}
+
+
+\caption{Hello everybody}
+\end{figure}
 
 \end{document}
