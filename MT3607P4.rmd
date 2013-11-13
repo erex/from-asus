@@ -1,0 +1,281 @@
+MT3607 Practical 4
+========================================================
+## Set 14 October, Examining the behaviour of the _t-test_
+
+
+A common statistical test used to make inference about the equality of means from two populations is the t-test.
+
+Assumptions of this test are:
+
+* normal distribution of both response variables,
+* homogeneity of variances,
+* adequate number of observations from both populations.
+
+The test statistic is formed as
+$$t_{stat} = \frac{\bar{Y_1}-\bar{Y_2}}{s_p \sqrt{\frac{1}{n_1}+\frac{1}{n_2}}}$$
+
+where the pooled sample variance is computed by
+
+$$s_p^2 = \frac{(n_1-1)s_1^2+(n_2-1)s_2^2}{n_1+n_2-2}$$
+
+How is the *performance* of a test measured?  This practical is intended to measure the performance of this test by measuring the Type I error rate: probability of rejecting a true null hypothesis $H_0: \mu_1 = \mu_2$.
+
+
+```{r ttest1, engine='sas', engine.path='C:\\Program Files\\SASHome\\SASFoundation\\9.3\\sas.exe', eval=TRUE, echo=TRUE, comment=NA}
+proc iml;
+/*    Simulates t-test */
+/*     parameters of the simulation experiment  */
+/*        Number of simulations, 
+          number of observations from each population,
+          mu and sigma for each population,
+          Type I error rate                     */
+  nsim = 5000;
+	nA = 30; nB = 30; deg_freedom= nA + nB - 2;
+	muA = 2; muB = 2;
+	sigA = 2; sigB = 2;
+  alpha = 0.05;
+/*      Create matrices to contain samples           */
+	pop_A = j(nsim, nA, 0);
+	pop_B = j(nsim, nB, 0);
+/*      Fill matrices with samples from specified distribution */
+	call randgen(pop_A, "Normal", muA, sigA);
+	call randgen(pop_B, "Normal", muB, sigB);
+/*     Examine top 3 rows (just like head())     */
+	print (pop_A[1:3,]);
+/*		Subscript reduction for mean by row  */
+	mean_A = pop_A[,:];
+	mean_B = pop_B[,:];
+/*      Messy here because var() function works on columns,
+		we want it work over rows, so use t() for transpose */
+	var_A = t(var(t(pop_A)));
+	var_B = t(var(t(pop_B)));
+/*      pooled variance and test statistic  */
+	s2p =((nA-1)*var_A + (nB-1)*var_B) / deg_freedom;
+	tstat = (mean_A - mean_B) / sqrt(s2p*(1/nA + 1/nB));
+/*      p-value of computed test statistic  */
+	Pvalue = 2 * (1-CDF('t', abs(tstat), deg_freedom));
+/*      how many p-values fall below the nominal significance threshold  */
+	Reject = (Pvalue <= alpha);
+/*		Matrix reduction to sum number of 'yes reject' events */
+	number_times = Reject[+];
+  expected_rejections = alpha * nsim;
+	print  "I rejected" number_times "times compared with " expected_rejections "expected rejections";
+quit;
+```
+
+Programming questions:
+
+1. What are the dimensions of matrices pop_A and pop_B?
+2. Rather than using the subscription reduction operators [:] for the mean and [+] for the total number of rejections, can you perform these calculations using built-in functions?
+ * Have a browse through [Chapter 23][langref] of the SAS/IML Users Guide to look for examples of functions `mean()` and `sum()`.
+ * Take some care because the functions operate on specific dimensions (rows or columns) of matrices.  
+ * That is why there is a message of caution in this code where `var()` is used.
+3. Is this the most computationally efficient way to determine the number of test rejections?
+ * If the answer is no _(hint, hint)_, what would be a more efficient way to compute the number of rejections?
+
+
+## Learning about the performance of t-test with this code
+
+1. Change the sample size for each population to see how incorrect rejections increase as sample size shrinks.
+2. Try to confirm the assertion that [Bailer (2010)][bailer] attributes to Miller's (1986) statistics text that "unequal variances between populations is most profound when sample sizes are small."
+ * Do this by making the sample sizes small (~10), then increase the difference between $\sigma_1$ and $\sigma_2$, and record performance of the test.
+ 
+## That was enlightening, but tedious, introducing loops
+
+You ought to be contemplating how to alter the code such that some sort of looping structure is added to the basic code to make the questions above easier to answer.  Try to implement a loop to record behaviour of a t-test when sample sizes are 10 and the difference in $\sigma_i$ grows.
+
+```{r loop, engine='sas', engine.path='C:\\Program Files\\SASHome\\SASFoundation\\9.3\\sas.exe', eval=TRUE, echo=TRUE, comment=NA}
+proc iml;
+/*    Simulates t-test */
+/*     parameters of the simulation experiment  */
+/*        Number of simulations, 
+          number of observations from each population,
+          mu and sigma for each population,
+          Type I error rate                     */
+  nsim = 5000;
+  nA = 5; nB = 5; deg_freedom= nA + nB - 2;
+	muA = 50; muB = 50;
+	sigA = 2; 
+  alpha = 0.05;
+/*  Loop construct build in next 4 lines  */
+  loopindex = 0;
+  howmanytimes = ncol(do(sigA, 20*sigA, 0.40)); /* laziness here */
+  powvec = j(1,howmanytimes,0);
+  do sigB = sigA to 20*sigA by 0.40;
+  /*      Create matrices to contain samples           */
+  	pop_A = j(nsim, nA, 0);
+  	pop_B = j(nsim, nB, 0);
+  /*      Fill matrices with samples from specified distribution */
+  	call randgen(pop_A, "Normal", muA, sigA);
+  	call randgen(pop_B, "Normal", muB, sigB);
+  /*		Subscript reduction for mean by row  */
+  	mean_A = pop_A[,:];
+  	mean_B = pop_B[,:];
+  /*      Messy here because var() function works on columns,
+  		we want it work over rows, so use t() for transpose */
+  	var_A = t(var(t(pop_A)));
+  	var_B = t(var(t(pop_B)));
+  /*      pooled variance and test statistic  */
+  	s2p =((nA-1)*var_A + (nB-1)*var_B) / deg_freedom;
+  	tstat = (mean_A - mean_B) / sqrt(s2p*(1/nA + 1/nB));
+  /*      p-value of computed test statistic  */
+  	Pvalue = 2 * (1-CDF('t', abs(tstat), deg_freedom));
+  /*      how many p-values fall below the nominal significance threshold  */
+  	Reject = (Pvalue <= alpha);
+  /*		Matrix reduction to sum number of 'yes reject' events */
+  	number_times = Reject[+];
+    loopindex = loopindex + 1;
+    powvec[loopindex] = number_times/nsim;
+  end;
+  print powvec;
+quit;
+```
+
+
+## Writing reusable code
+
+This approach works, but it is a fairly blunt approach to the problem.  We can write more streamlined code by taking advantage of modularity; i.e. by writing our code using modules.
+
+Here is code that breaks the t-test simulation into 3 pieces: 
+
+* population generation, 
+* test generation, and
+* simulation summary
+
+Each task is contained within a module.
+
+```{r modules, engine='sas', engine.path='C:\\Program Files\\SASHome\\SASFoundation\\9.3\\sas.exe', eval=TRUE, echo=TRUE, comment=NA}
+proc iml;
+start build_popn(nsim, n1, n2, mu1, sig1, mu2, sig2, pop_A, pop_B);
+/*  nsim = 4000;
+	n1=10; n2=10; 
+	mu1=0; mu2=0;
+	sig1=1; sig2=1; */
+/*      Create matrices to contain samples           */
+	pop_A = j(nsim, n1, 0);
+	pop_B = j(nsim, n2, 0);
+/*      Fill matrices with samples from specified distribution */
+	call randgen(pop_A, "Normal", mu1, sig1);
+	call randgen(pop_B, "Normal", mu2, sig2);
+/*     Examine top 5 rows (just like head())     */
+*	print (pop_A[1:5,]);
+finish build_popn;	
+	
+start iml_ttest(pop_A, pop_B);	
+	n1 = ncol(pop_A);
+	n2 = ncol(pop_B);
+	deg_freedom = n1+n2-2;
+/*		Subscript reduction for mean across columns  */
+	mean_A = pop_A[,:];
+	mean_B = pop_B[,:];
+/*      Messy here because var() function works on columns,
+		we want it work over rows, so use t() for transpose */
+	var_A = t(var(t(pop_A)));
+	var_B = t(var(t(pop_B)));
+/*      Next 4 statements compute test stat, pvalue and combine  */
+	s2p =((n1-1)*var_A + (n2-1)*var_B) / deg_freedom;
+	tstat = (mean_A - mean_B) / sqrt(s2p*(1/n1 + 1/n2));
+	Pvalue = 2 * (1-CDF('t', abs(tstat), deg_freedom));
+	merge_results = tstat || Pvalue;
+	return(merge_results);
+finish iml_ttest;	
+	
+start summarise(result, alpha);
+	reject_occasions = (result[,2] <= alpha);
+	how_often = reject_occasions[+];
+	return(how_often);
+finish summarise;
+
+nsims = 5000;
+run build_popn(nsims, 5, 5, 20, 10, 20, 1, Apop, Bpop);
+myresult = iml_ttest(Apop, Bpop);
+prop_reject = summarise(myresult, 0.05);
+print "Proportion of hypothesis rejections" (prop_reject/nsims);
+quit;
+```
+
+
+## Points to note about modular *t-test* simulation
+
+For now, I will ask you to notice that the module `build_popn` is called a `subroutine` while the modules `iml_ttest` and `summarise` are `functions.`  Note the differences in 
+
+* the difference in the way subroutines and functions are called
+* the way results are sent back from the subroutines and functions.
+
+Find out if incorporating loops into this version of the code is more straightforward then doing so with the previous version of the code.
+
+```{r loopmodgraph, engine='sas', engine.path='C:\\Program Files\\SASHome\\SASFoundation\\9.3\\sas.exe', eval=TRUE, echo=FALSE, fig.cap='Type I error rate as sigma disparity increases', comment=NA}
+proc iml;
+start build_popn(nsim, n1, n2, mu1, sig1, mu2, sig2, pop_A, pop_B);
+/*      Create matrices to contain samples           */
+  pop_A = j(nsim, n1, 0);
+	pop_B = j(nsim, n2, 0);
+/*      Fill matrices with samples from specified distribution */
+	call randgen(pop_A, "Normal", mu1, sig1);
+	call randgen(pop_B, "Normal", mu2, sig2);
+finish build_popn;	
+	
+start iml_ttest(pop_A, pop_B);	
+	n1 = ncol(pop_A);
+	n2 = ncol(pop_B);
+	deg_freedom = n1+n2-2;
+/*		Subscript reduction for mean across columns  */
+	mean_A = pop_A[,:];
+	mean_B = pop_B[,:];
+/*      Messy here because var() function works on columns,
+		we want it work over rows, so use t() for transpose */
+	var_A = t(var(t(pop_A)));
+	var_B = t(var(t(pop_B)));
+/*      Next 4 statements are perform the work  */
+	s2p =((n1-1)*var_A + (n2-1)*var_B) / deg_freedom;
+	tstat = (mean_A - mean_B) / sqrt(s2p*(1/n1 + 1/n2));
+	Pvalue = 2 * (1-CDF('t', abs(tstat), deg_freedom));
+	merge_results = tstat || Pvalue;
+	return(merge_results);
+finish iml_ttest;	
+	
+start summarise(result, alpha);
+	reject_occasions = (result[,2] <= alpha);
+	how_often = reject_occasions[+];
+	return(how_often);
+finish summarise;
+
+nsims = 10000;
+loopindex = 0;
+sigA = 2;
+howmanytimes = ncol(do(sigA, 20*sigA, 0.40)); /* laziness here */
+powmat = j(howmanytimes, 2, 0);
+do sigB = sigA to 20*sigA by 0.40;
+	run build_popn(nsims, 5, 5, 20, sigA, 20, sigB, Apop, Bpop);
+	myresult = iml_ttest(Apop, Bpop);
+	prop_reject = summarise(myresult, 0.05);
+	loopindex = loopindex + 1;
+	powmat[loopindex,1] = sigB;
+	powmat[loopindex,2] = prop_reject/nsims;
+end;
+/* see Chapter 15, Graphics Examples SAS/IML users guide 
+http://library.books24x7.com.ezproxy.st-andrews.ac.uk/assetviewer.aspx?bookid=44491&chunkid=796660827  */
+call gstart;
+call gopen;
+windowvec = j(1,4,0);
+windowvec[1] = min(powmat[,1]);
+windowvec[2] = min(powmat[,2]);
+windowvec[3] = max(powmat[,1]);
+windowvec[4] = max(powmat[,2]);
+rangex = range(powmat[,1]);
+rangey = range(powmat[,2]);
+call gwindow(windowvec);
+call gport({15 15, 85 85});
+call gdraw(powmat[,1], powmat[,2]);
+call gxaxis(windowvec[1:2], rangex, 10);
+call gyaxis(windowvec[1:2], rangey, 5);
+call gshow;
+quit;
+```
+
+
+We will speak in more details about subroutines and functions on Wednesday.
+
+
+[langref]: http://library.books24x7.com.ezproxy.st-andrews.ac.uk/assetviewer.aspx?bookid=44491&chunkid=232772845&rowid=1468 "Language reference of SAS/IML"
+[bailer]: http://library.books24x7.com.ezproxy.st-andrews.ac.uk/assetviewer.aspx?bookid=36717&chunkid=918985859 "Bailer t-test"
